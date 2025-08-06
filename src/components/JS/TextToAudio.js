@@ -69,9 +69,9 @@ export default function TextToAudio() {
       padding: '1rem',
     },
     card: {
-      border: "10px solid #03314b",
+      border: "5px solid #03314b",
       width: '100%',
-      maxWidth: '55rem',
+      maxWidth: '45rem',
       padding: '2rem',
      
       borderRadius: '5rem',

@@ -5,7 +5,7 @@ import Footer from './components/JS/Footer';
 import './components/CSS/Footer.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import TextToAudio from './components/JS/TextToAudio';
-
+import  TopDown from './components/JS/TopDown';
 import Hero from './components/JS/Hero';
 
 
@@ -28,6 +28,10 @@ function App() {
 
     <div className='Footer'>
       <Footer />
+    </div>
+
+    <div className='TopDown'>
+      <TopDown /> 
     </div>
 
     </div>
