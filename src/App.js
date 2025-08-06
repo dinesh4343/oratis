@@ -4,6 +4,9 @@ import Header from './components/JS/Header';
 import Footer from './components/JS/Footer';
 import './components/CSS/Footer.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import TextToAudio from './components/JS/TextToAudio';
+
+import Hero from './components/JS/Hero';
 
 
 function App() {
@@ -14,6 +17,13 @@ function App() {
       <Header />
     </div>
 
+    <div className='Hero'>
+      <Hero />
+    </div>
+
+    <div className='TextToAudio'>
+      <TextToAudio />
+    </div>
 
 
     <div className='Footer'>

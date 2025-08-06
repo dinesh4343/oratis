@@ -24,10 +24,14 @@ const ThemeToggle = () => {
         element.style.backgroundColor = theme === 'light' ? '#FBF8EF' : '#121212';
       });
 
-      
+      const navheader= document.querySelector('.navheader');
+
+      navheader.style.backgroundColor = theme === 'light' ? '#FBF8EF' : '#121212';
 
       
     });
+
+
 
 
     
