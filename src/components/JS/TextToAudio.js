@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+
+
 // Main application component for the Text-to-Speech tool.
 export default function TextToAudio() {
   // State to hold the text from the textarea.
@@ -67,12 +69,13 @@ export default function TextToAudio() {
       padding: '1rem',
     },
     card: {
+      border: "10px solid #03314b",
       width: '100%',
-      maxWidth: '32rem',
+      maxWidth: '55rem',
       padding: '2rem',
-      backgroundColor: '#ffffff',
-      borderRadius: '1rem',
-      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+     
+      borderRadius: '5rem',
+      boxShadow: '0 55px 50px -12px rgba(0, 0, 0, 0.25)',
       position: 'relative',
       display: 'flex',
       flexDirection: 'column',
@@ -84,18 +87,18 @@ export default function TextToAudio() {
     title: {
       fontSize: '2.25rem',
       fontWeight: 'bold',
-      color: '#1e293b',
+      
     },
     subtitle: {
-      color: '#64748b',
+      
       marginTop: '0.5rem',
     },
     textarea: {
       width: '100%',
-      padding: '1rem',
+      padding: '2rem',
       color: '#1e293b',
-      backgroundColor: '#f8fafc',
-      border: '2px solid #e2e8f0',
+    
+      border: '2px solid #1e293b',
       borderRadius: '1rem',
       transition: 'border-color 0.3s, box-shadow 0.3s',
       boxSizing: 'border-box',

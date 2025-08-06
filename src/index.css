@@ -1,3 +1,26 @@
+/* Add this to your global CSS or component-level CSS file */
+
+::-webkit-scrollbar {
+  width: 10px;             /* width of the vertical scrollbar */
+  height: 10px;            /* height of the horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+     /* color of the track (the empty space) */
+  border-radius: 50px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #014f86;  /* color of the scroll thumb */
+  border-radius: 50px;
+   /* space around the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #012a4a;     /* darker shade on hover */
+}
+
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
