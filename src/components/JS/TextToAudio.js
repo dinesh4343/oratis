@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-
-
 // Main application component for the Text-to-Speech tool.
 export default function TextToAudio() {
   // State to hold the text from the textarea.
@@ -31,6 +29,8 @@ export default function TextToAudio() {
    * useEffect hook for cleaning up speech synthesis on unmount.
    */
   useEffect(() => {
+    // This ensures that if the component is unmounted while speaking,
+    // the speech is stopped to prevent memory leaks or errors.
     return () => {
       if (isSpeaking) {
         window.speechSynthesis.cancel();
@@ -40,27 +40,77 @@ export default function TextToAudio() {
 
   /**
    * Handles the primary action of toggling speech on and off.
+   * Includes a workaround for mobile browser voice loading issues.
    */
   const handleToggleSpeech = () => {
     if (isSpeaking) {
       window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+      // The `onend` event handler in the utterance will set isSpeaking to false.
+      return;
+    }
+
+    if (!text.trim()) return;
+
+    // A function to handle the actual speech synthesis.
+    const speakText = (voiceToUse) => {
+        if (!voiceToUse) {
+            console.error("No suitable voice found to speak the text.");
+            // Display a user-friendly error/alert here if desired
+            return;
+        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.voice = voiceToUse;
+        utterance.onstart = () => setIsSpeaking(true);
+        // `onend` fires for both successful completion and cancellation.
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = (event) => {
+            console.error("SpeechSynthesisUtterance.onerror - " + event.error);
+            setIsSpeaking(false);
+        };
+        window.speechSynthesis.speak(utterance);
+    };
+
+    // --- MOBILE BROWSER WORKAROUND ---
+    // If voices are not loaded yet (common on mobile), the first tap will "prime" the engine.
+    let voice = preferredVoice;
+    if (!voice) {
+        const voices = window.speechSynthesis.getVoices();
+        const googleVoice = voices.find(v => v.name === 'Google US English');
+        const usVoice = voices.find(v => v.lang === 'en-US');
+        voice = googleVoice || usVoice;
+        
+        if (voice) {
+            setPreferredVoice(voice); // Save the found voice for subsequent uses
+            speakText(voice);
+        } else {
+            // If voices are still not available, we prime the engine and try again.
+            // This is the "empty utterance" trick.
+            const primeUtterance = new SpeechSynthesisUtterance('');
+            window.speechSynthesis.speak(primeUtterance);
+            // Re-check for voices immediately after priming.
+            const updatedVoices = window.speechSynthesis.getVoices();
+            const updatedGoogleVoice = updatedVoices.find(v => v.name === 'Google US English');
+            const updatedUsVoice = updatedVoices.find(v => v.lang === 'en-US');
+            const finalVoice = updatedGoogleVoice || updatedUsVoice;
+
+            if (finalVoice) {
+                setPreferredVoice(finalVoice);
+                speakText(finalVoice);
+            } else {
+                 console.warn("Could not load voices even after priming.");
+            }
+        }
     } else {
-      if (!text.trim() || !preferredVoice) return;
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.voice = preferredVoice;
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      window.speechSynthesis.speak(utterance);
+        // If the voice is already loaded, just speak.
+        speakText(voice);
     }
   };
+
 
   // --- Inline CSS Style Objects ---
 
   const styles = {
     appContainer: {
-     
       minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
@@ -73,7 +123,6 @@ export default function TextToAudio() {
       width: '100%',
       maxWidth: '45rem',
       padding: '2rem',
-     
       borderRadius: '5rem',
       boxShadow: '0 55px 50px -12px rgba(0, 0, 0, 0.25)',
       position: 'relative',
@@ -87,21 +136,20 @@ export default function TextToAudio() {
     title: {
       fontSize: '2.25rem',
       fontWeight: 'bold',
-      
     },
     subtitle: {
-      
       marginTop: '0.5rem',
     },
     textarea: {
       width: '100%',
       padding: '2rem',
       color: '#1e293b',
-    
       border: '2px solid #1e293b',
       borderRadius: '1rem',
       transition: 'border-color 0.3s, box-shadow 0.3s',
       boxSizing: 'border-box',
+      resize: 'vertical',
+      minHeight: '120px',
     },
     controlSection: {
       display: 'flex',
@@ -143,8 +191,9 @@ export default function TextToAudio() {
     },
   };
 
-  // Combine button styles based on component state
-  const isDisabled = !preferredVoice || !text.trim();
+  // The button should only be disabled if there's no text to speak.
+  // We no longer disable it if voices aren't loaded, as the click itself helps load them.
+  const isDisabled = !text.trim();
   const buttonStyle = {
     ...styles.buttonBase,
     ...(isSpeaking ? styles.buttonSpeaking : styles.buttonNotSpeaking),
@@ -188,7 +237,7 @@ export default function TextToAudio() {
         {/* Warning Message for TTS voice */}
         {!preferredVoice && (
           <p style={styles.warningMessage}>
-            A high-quality English voice is not available in your browser. Functionality may be limited.
+            A high-quality English voice may not be available in your browser. Functionality may be limited.
           </p>
         )}
       </div>
