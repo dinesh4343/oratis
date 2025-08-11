@@ -212,8 +212,7 @@ const VideoPopup = ({ videoUrl, onClose }) => {
       <div className="popup-content" onClick={handleContentClick}>
         <button className="close-btn" onClick={onClose}>&times;</button>
         <video controls autoPlay muted playsInline width="100%">
-          <source src={`${process.env.PUBLIC_URL}//TextToAudio.webm`} type="video/webm" />
-          <source src={`${process.env.PUBLIC_URL}//TextToAudio.mp4`} type="video/mp4" />
+          <source src={videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
       </div>
@@ -232,7 +231,8 @@ export default function App() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   // URL for the video. Replace this with your video file.
- const videoUrl = `${process.env.PUBLIC_URL}/TextToAudio.mp4`; 
+ const videoUrl = process.env.PUBLIC_URL + "/TextToAudio.mp4";
+
 
   // Function to open the popup
   const openPopup = () => {
