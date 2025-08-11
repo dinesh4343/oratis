@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+ // Ensure this path is correct relative to your src directory.
 
 import { Link } from 'react-scroll';
 // --- Styling for the popup components ---
@@ -15,7 +16,7 @@ const styles = `
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.75);  
     display: flex;
     justify-content: center;
     align-items: center;
@@ -210,7 +211,7 @@ const VideoPopup = ({ videoUrl, onClose }) => {
     <div className="popup-overlay" onClick={onClose}>
       <div className="popup-content" onClick={handleContentClick}>
         <button className="close-btn" onClick={onClose}>&times;</button>
-        <video controls autoPlay muted width="100%">
+        <video controls autoPlay  playsInline width="100%">
           <source src={videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
@@ -230,7 +231,7 @@ export default function App() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   // URL for the video. Replace this with your video file.
-  const videoUrl = '/TextToAudio.mp4'; // Ensure this path is correct relative to your public directory.
+ const videoUrl = `${process.env.PUBLIC_URL}/TextToAudio.mp4`; 
 
   // Function to open the popup
   const openPopup = () => {

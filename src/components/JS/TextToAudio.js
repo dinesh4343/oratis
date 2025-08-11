@@ -1,35 +1,27 @@
 import React, { useState, useEffect } from 'react';
 
-
-
-// Main application component for the Text-to-Speech tool.
 export default function TextToAudio() {
-  // State to hold the text from the textarea.
   const [text, setText] = useState('');
-  // State to track if the speech is currently playing.
   const [isSpeaking, setIsSpeaking] = useState(false);
-  // State to store the preferred speech synthesis voice.
   const [preferredVoice, setPreferredVoice] = useState(null);
 
-  /**
-   * useEffect hook to find and set a suitable English voice.
-   */
+  // Load voices when available
   useEffect(() => {
-    const getVoices = () => {
+    const loadVoices = () => {
       const voices = window.speechSynthesis.getVoices();
       if (voices.length === 0) return;
+
+      // Try to find an English voice
       const googleVoice = voices.find(v => v.name === 'Google US English');
       const usVoice = voices.find(v => v.lang === 'en-US');
-      setPreferredVoice(googleVoice || usVoice);
+      setPreferredVoice(googleVoice || usVoice || voices[0] || null);
     };
-    getVoices();
-    // The 'voiceschanged' event is crucial as voices load asynchronously.
-    window.speechSynthesis.onvoiceschanged = getVoices;
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
   }, []);
 
-  /**
-   * useEffect hook for cleaning up speech synthesis on unmount.
-   */
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (isSpeaking) {
@@ -38,29 +30,37 @@ export default function TextToAudio() {
     };
   }, [isSpeaking]);
 
-  /**
-   * Handles the primary action of toggling speech on and off.
-   */
   const handleToggleSpeech = () => {
     if (isSpeaking) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
     } else {
-      if (!text.trim() || !preferredVoice) return;
+      if (!text.trim()) return;
+
+      // Refresh voices for mobile Safari (voices may only load after a tap)
+      let voice = preferredVoice;
+      if (!voice) {
+        const voices = window.speechSynthesis.getVoices();
+        const googleVoice = voices.find(v => v.name === 'Google US English');
+        const usVoice = voices.find(v => v.lang === 'en-US');
+        voice = googleVoice || usVoice || voices[0] || null;
+        setPreferredVoice(voice);
+      }
+
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.voice = preferredVoice;
+      if (voice) utterance.voice = voice;
+
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);
+
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  // --- Inline CSS Style Objects ---
-
+  // Styles
   const styles = {
     appContainer: {
-     
       minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
@@ -73,7 +73,6 @@ export default function TextToAudio() {
       width: '100%',
       maxWidth: '45rem',
       padding: '2rem',
-     
       borderRadius: '5rem',
       boxShadow: '0 55px 50px -12px rgba(0, 0, 0, 0.25)',
       position: 'relative',
@@ -87,17 +86,14 @@ export default function TextToAudio() {
     title: {
       fontSize: '2.25rem',
       fontWeight: 'bold',
-      
     },
     subtitle: {
-      
       marginTop: '0.5rem',
     },
     textarea: {
       width: '100%',
       padding: '2rem',
       color: '#1e293b',
-    
       border: '2px solid #1e293b',
       borderRadius: '1rem',
       transition: 'border-color 0.3s, box-shadow 0.3s',
@@ -124,10 +120,10 @@ export default function TextToAudio() {
       transition: 'background-color 0.3s, transform 0.1s',
     },
     buttonNotSpeaking: {
-      backgroundColor: '#4f46e5', // indigo-600
+      backgroundColor: '#4f46e5',
     },
     buttonSpeaking: {
-      backgroundColor: '#dc2626', // red-600
+      backgroundColor: '#dc2626',
     },
     buttonDisabled: {
       opacity: 0.5,
@@ -135,16 +131,15 @@ export default function TextToAudio() {
     },
     warningMessage: {
       textAlign: 'center',
-      color: '#ca8a04', // amber-600
+      color: '#ca8a04',
       fontSize: '0.875rem',
       padding: '0.5rem',
-      backgroundColor: '#fefce8', // amber-50
+      backgroundColor: '#fefce8',
       borderRadius: '0.375rem',
     },
   };
 
-  // Combine button styles based on component state
-  const isDisabled = !preferredVoice || !text.trim();
+  const isDisabled = !text.trim();
   const buttonStyle = {
     ...styles.buttonBase,
     ...(isSpeaking ? styles.buttonSpeaking : styles.buttonNotSpeaking),
@@ -152,15 +147,13 @@ export default function TextToAudio() {
   };
 
   return (
-    <div style={styles.appContainer} className="text-to-audio">
+    <div style={styles.appContainer}>
       <div style={styles.card}>
-        {/* Header Section */}
         <div style={styles.header}>
-            <h1 style={styles.title}>Oratis</h1>
-            <p style={styles.subtitle}>Your professional text-to-speech assistant.</p>
+          <h1 style={styles.title}>Oratis</h1>
+          <p style={styles.subtitle}>Your professional text-to-speech assistant.</p>
         </div>
-        
-        {/* Text Input Area */}
+
         <textarea
           style={styles.textarea}
           placeholder="Enter text to synthesize..."
@@ -168,8 +161,7 @@ export default function TextToAudio() {
           onChange={(e) => setText(e.target.value)}
           rows={8}
         />
-        
-        {/* Main TTS Control Button Section */}
+
         <div style={styles.controlSection}>
           <button
             style={buttonStyle}
@@ -185,7 +177,6 @@ export default function TextToAudio() {
           </button>
         </div>
 
-        {/* Warning Message for TTS voice */}
         {!preferredVoice && (
           <p style={styles.warningMessage}>
             A high-quality English voice is not available in your browser. Functionality may be limited.
