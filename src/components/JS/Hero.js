@@ -211,7 +211,7 @@ const VideoPopup = ({ videoUrl, onClose }) => {
     <div className="popup-overlay" onClick={onClose}>
       <div className="popup-content" onClick={handleContentClick}>
         <button className="close-btn" onClick={onClose}>&times;</button>
-        <video controls autoPlay  playsInline width="100%">
+        <video controls autoPlay muted playsInline width="100%">
           <source src={videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
